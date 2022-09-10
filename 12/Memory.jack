@@ -1,0 +1,145 @@
+// This file is part of www.nand2tetris.org
+// and the book "The Elements of Computing Systems"
+// by Nisan and Schocken, MIT Press.
+// File name: projects/12/Memory.jack
+
+/**
+ * This library provides two services: direct access to the computer's main
+ * memory (RAM), and allocation and recycling of memory blocks. The Hack RAM
+ * consists of 32,768 words, each holding a 16-bit binary number.
+ */
+class Memory {
+    static Array ram;
+    static Array heap;
+    static Array freeList;
+    /** Initializes the class. */
+    function void init() {
+        let ram = 0;
+        let heap = 2048;
+        let freeList = 2048;
+        let heap[1] = 14335;
+        let heap[0] = 0;
+        return;
+    }
+
+    /** Returns the RAM value at the given address. */
+    function int peek(int address) {
+        return ram[address];
+    }
+
+    /** Sets the RAM value at the given address to the given value. */
+    function void poke(int address, int value) {
+        let ram[address] = value;
+        return;
+    }
+
+    /** Finds an available RAM block of the given size and returns
+     *  a reference to its base address. */
+
+function int alloc(int size){
+  var int baseAddress;
+  let baseAddress =  Memory.memoryBlockOf(size);
+  if (baseAddress = 0){
+    do Memory.deFrag();
+    let baseAddress = Memory.memoryBlockOf(size);
+    if(baseAddress = 0){
+      do Sys.error(202);
+    }
+  }
+  return baseAddress;
+}
+
+function int memoryBlockOf(int size){
+var Array bestCandidate;
+var Array block;
+var int length;
+var int next;
+let length = 1;
+let next = 0;
+let block = freeList;
+let bestCandidate = 0;
+while(~(block=0)){
+  if(~((block[length]-(size+2))<0)){
+  if(bestCandidate = 0){
+    let bestCandidate = block;
+  }else{
+    if(block[length]<bestCandidate[length]){
+      let bestCandidate = block;
+    }
+  }
+let block = block[next];
+}
+}
+if(bestCandidate = 0){
+    return 0;
+}
+let freeList = size + 2 + freeList;
+let freeList[length] = bestCandidate[length]-(size+2);
+let bestCandidate[length] = size;
+let bestCandidate[next] = 0;
+return bestCandidate+2;
+}
+
+
+
+    function void deFrag(){
+      var Array block;
+      var Array prevBlock;
+      var Array blockOfInterest;
+      var Array prevToBlockOfInterest;
+      var int next;
+      var int length;
+      let next = 0;
+      let length = 1;
+      let block = freeList[next];
+      let prevBlock = freeList;
+      let blockOfInterest = freeList;
+      while(~(blockOfInterest = 0)){
+          while(~(block=0)){
+              if((block+block[length]+2) = blockOfInterest){
+                if(blockOfInterest = freeList){
+                  let freeList = block;
+                  let block[length] = blockOfInterest[length] + block[length]+2;
+                  let prevBlock[next] = block[next];
+                  let block[next] = blockOfInterest[next];
+                  let blockOfInterest = block;
+                }else{
+                  let block[length] = blockOfInterest[length] + block[length];
+                  let prevToBlockOfInterest[next] = blockOfInterest[next];
+                  let blockOfInterest = block;
+                }
+              }
+              if((blockOfInterest+blockOfInterest[length]+2)  = block){
+                if(blockOfInterest = freeList){
+                  let blockOfInterest[length] = blockOfInterest[length] + block[length]+2;
+                }else{
+                    let blockOfInterest[length] = blockOfInterest[length] + block[length]+2;
+                    let prevBlock[next] = block[next];
+                }
+              }
+            let prevBlock = block;
+            let block = block[next];
+          }
+          let block = freeList;
+          let prevToBlockOfInterest = blockOfInterest;
+          let blockOfInterest = blockOfInterest[next];
+      }
+      return;
+    }
+
+    /** De-allocates the given object (cast as an array) by making
+     *  it available for future allocations. */
+    function void deAlloc(Array o){
+	var Array block;
+	let block = freeList;
+	while(~(block[0]=0)){
+	  let block = block[0];
+	}
+
+	let block[0] = o-2;
+
+		return;
+
+    }
+
+}
