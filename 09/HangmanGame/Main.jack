@@ -1,0 +1,26 @@
+class Main {
+   function void main() {
+     var HangmanGame game;
+     var String name;
+     var Array words;
+     var int counter;
+     let counter = 0;
+     let words = Array.new(5);
+     let words[0]="FLYBY";
+     let words[1]="BEEKEEPER";
+     let words[2]="EMBEZZLE";
+     let words[3]="EXODUS";
+     let words[4]="DWARVES";
+     while(counter<5){
+        let game = HangmanGame.new(words[counter]);
+        do Output.printString("Welcome To Hangman! Press Letters On Your Keyboard To Guess The Word!");
+        do Output.println();
+        do game.start();
+        let counter = counter + 1;
+        do Screen.clearScreen();
+        do Output.moveCursor(0,0);
+     }
+     return;
+   }
+   
+}

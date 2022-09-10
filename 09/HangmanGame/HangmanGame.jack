@@ -1,0 +1,177 @@
+class HangmanGame{
+	field String currentWord;
+	field int numWrongGuesses;
+	field int numLettersCorrectlyGuessed;
+	field String displayWord;
+	field String guessedLetters;
+	
+	constructor HangmanGame new(String word){
+		var char c;
+		var int counter;
+		let c = 136;
+		let counter = 0;
+		let currentWord = word;
+		let numWrongGuesses = 0;
+		let numLettersCorrectlyGuessed = 0;
+		let displayWord = String.new(currentWord.length());
+		let guessedLetters = String.new(currentWord.length()+5);
+		while (counter<currentWord.length()){
+			do displayWord.appendChar(c);
+			let counter = counter + 1;
+		}
+		do drawHangmanFor(numWrongGuesses,true);
+		return this;
+	}
+	
+
+	
+	method void start(){
+	  var char key;  // the key currently pressed by the user
+	  var int cursorRow;
+	  var int cursorCol;
+	  let cursorRow = 7;
+	  let cursorCol  = 0;
+	  do Output.moveCursor(cursorRow,cursorCol);
+      while (numWrongGuesses<6  & ~(numLettersCorrectlyGuessed = currentWord.length())) {
+         // waits for a key to be pressed
+         while (key = 0) {
+            let key = Keyboard.keyPressed();
+         }
+	 if(isIn(guessedLetters,key)){
+	    do Output.moveCursor(22,0);
+	    do Output.printString("It looks like you have already guessed that word!");
+	 }else{
+	   do guessedLetters.appendChar(key);
+	   //Remove the text alert the user of a previously guessed word.
+	   do clearRowAt(22);
+	   do Output.moveCursor(cursorRow,cursorCol);
+
+         if (isIn(currentWord,key)){
+         	if (~isIn(displayWord,key)){
+         	 do drawWordState(key);
+         	 let numLettersCorrectlyGuessed = numberOfLettersGuessedCorrectly();
+         	 do Output.printString("      ");
+         	 do Output.printChar(key);
+         	 let cursorRow = cursorRow + 1;
+		 do Output.println();     
+         	}
+         }else{
+         	  let numWrongGuesses = numWrongGuesses + 1;
+         	  do Output.printString(displayWord);
+         	  do Output.printString("      ");
+         	  do Output.printChar(key);
+         	  do Output.println(); 
+         	  let cursorRow = cursorRow + 1;
+         	  do drawHangmanFor(numWrongGuesses,true);
+		  do displayNumWrongGuesses(cursorRow,cursorCol);
+         }
+}
+         while (~(key = 0)) {
+            let key = Keyboard.keyPressed();
+         }
+     } 
+     do Output.moveCursor(14,38);
+     if(numWrongGuesses = 6){
+     	do Output.printString("Sorry, you lost!");
+	do Output.moveCursor(22,0);
+	do Output.printString("The correct word was ");
+	do Output.printString(currentWord);
+     }else{
+     	do Output.printString("Congratulations, you won!");
+     }
+     do Sys.wait(1500);
+     return;
+	}
+	
+	method boolean isIn(String word, char character){
+		var int lengthOfWord;
+		var int counter;
+		let lengthOfWord = word.length();
+		while (counter<lengthOfWord){
+			if(word.charAt(counter) = character){
+				return true;
+			}
+			let counter = counter + 1;
+		}
+		return false;
+	}
+	
+	
+	method void drawHangmanFor(int numWrong, boolean color){
+		do Screen.setColor(color);
+		if (numWrong = 0){
+		do Screen.drawLine(225,200,285,200);
+		do Screen.drawLine(255,200,255,95);
+		do Screen.drawLine(255,95,285,95);
+		do Screen.drawLine(285,95,285,125);
+		}
+		if(numWrong = 1){
+			do Screen.drawCircle(285,135,10);
+		}
+		if(numWrong = 2){
+			do Screen.drawLine(285,145,285,170);
+		}
+		if(numWrong = 3){
+			do Screen.drawLine(285,170,275,185);	
+		}
+		if(numWrong = 4){
+			do Screen.drawLine(285,170,295,185);
+		}
+		if(numWrong = 5){
+			do Screen.drawLine(285,157,275,172);
+		}
+		if(numWrong = 6){
+			do Screen.drawLine(285,157,295,172);
+		}
+		return;
+	}
+	
+	method void drawWordState(char c){
+		var int length;
+		var int counter;
+		let length = currentWord.length();
+		let counter = 0;
+		while(counter<length){
+			if (currentWord.charAt(counter) = c){
+				do displayWord.setCharAt(counter,c);
+			}
+			let counter = counter +1;
+		}
+		do Output.printString(displayWord);
+		return;
+	}
+	
+	method int numberOfLettersGuessedCorrectly(){
+		var int length;
+		var int counter;
+		var int num;
+		let length = currentWord.length();
+		let counter = 0;
+		while(counter<length){
+			if (~(displayWord.charAt(counter) = 136)){
+				let num = num + 1;
+			}
+			let counter = counter + 1;
+		}
+		return num;
+	}
+	
+	method void displayNumWrongGuesses(int cursorRow, int cursorColumn){
+		do Output.moveCursor(5,35);
+		do Output.printString("Number Of Wrong Guesses: ");
+		do Output.printInt(numWrongGuesses);
+		do Output.printString("/6");
+		do Output.moveCursor(cursorRow,cursorColumn);
+		return;
+	}
+
+	method void clearRowAt(int row){
+	var int counter;
+	 do Output.moveCursor(row,63);
+	while(counter<64){
+	 do Output.backSpace();
+	 let counter = counter + 1;
+	}
+	return;
+	}
+}
